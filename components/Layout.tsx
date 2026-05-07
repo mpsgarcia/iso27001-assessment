@@ -6,11 +6,11 @@ import { useAuth } from '@/contexts/AuthContext'
 import { signOut } from '@/lib/auth'
 
 const navItems = [
-  { label: 'Projetos', href: '/projetos',  icon: 'folder' },
+  { label: 'Projetos', href: '/projetos', icon: 'folder' },
 ]
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth()
+  const { user, isAdmin } = useAuth()
   const pathname = usePathname()
   const router = useRouter()
 
@@ -55,10 +55,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         {/* Footer */}
         <div className="mt-auto border-t border-white/10 pt-md space-y-xs">
-          <button className="w-full flex items-center gap-md px-md py-sm text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200 hover:translate-x-1">
-            <span className="material-symbols-outlined text-[20px]">settings</span>
-            <span className="font-body text-title-md">Configurações</span>
-          </button>
+          {isAdmin && (
+            <Link
+              href="/configuracoes"
+              className={`w-full flex items-center gap-md px-md py-sm rounded-xl transition-all duration-200 hover:translate-x-1 ${pathname.startsWith('/configuracoes') ? 'text-white bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+            >
+              <span className="material-symbols-outlined text-[20px]">settings</span>
+              <span className="font-body text-title-md">Configurações</span>
+            </Link>
+          )}
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-md px-md py-sm text-white/60 hover:text-[#ef4444] hover:bg-[#ef4444]/10 rounded-xl transition-all duration-200 hover:translate-x-1"

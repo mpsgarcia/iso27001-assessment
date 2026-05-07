@@ -12,7 +12,9 @@ import {
   setDoc,
 } from 'firebase/firestore'
 import { db } from './firebase'
-import { Projeto, AvaliacaoItem, StatusAvaliacao } from './types'
+import { Projeto, AvaliacaoItem, StatusAvaliacao, Usuario, RoleUsuario } from './types'
+
+const ADMIN_EMAIL = 'marcos.garcia@spread.com.br'
 
 // ── PROJETOS ──────────────────────────────────────────────
 export async function criarProjeto(uid: string, dados: Omit<Projeto, 'id' | 'criadoEm' | 'atualizadoEm' | 'uid'>) {
@@ -86,6 +88,31 @@ export async function carregarEstimativas(
   const result: Record<string, Record<string, unknown>> = {}
   snap.docs.forEach((d) => { result[d.id] = d.data() })
   return result
+}
+
+// ── USUÁRIOS ──────────────────────────────────────────────
+export async function sincronizarUsuario(uid: string, email: string): Promise<RoleUsuario> {
+  const ref = doc(db, 'usuarios', uid)
+  const snap = await getDoc(ref)
+  if (snap.exists()) {
+    return snap.data().role as RoleUsuario
+  }
+  const role: RoleUsuario = email === ADMIN_EMAIL ? 'admin' : 'user'
+  await setDoc(ref, { uid, email, role, criadoEm: serverTimestamp() })
+  return role
+}
+
+export async function listarUsuarios(): Promise<Usuario[]> {
+  const snap = await getDocs(collection(db, 'usuarios'))
+  return snap.docs.map((d) => ({ ...d.data() } as Usuario))
+}
+
+export async function atualizarRoleUsuario(uid: string, role: RoleUsuario): Promise<void> {
+  await updateDoc(doc(db, 'usuarios', uid), { role })
+}
+
+export async function registrarNovoUsuario(uid: string, email: string): Promise<void> {
+  await setDoc(doc(db, 'usuarios', uid), { uid, email, role: 'user', criadoEm: serverTimestamp() })
 }
 
 // ── HELPERS DASHBOARD ─────────────────────────────────────

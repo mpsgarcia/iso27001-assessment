@@ -4,8 +4,10 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged,
   User,
+  getAuth,
 } from 'firebase/auth'
-import { auth } from './firebase'
+import { initializeApp, deleteApp } from 'firebase/app'
+import { auth, firebaseConfig } from './firebase'
 
 const ALLOWED_DOMAIN = 'spread.com.br'
 
@@ -35,4 +37,19 @@ export async function signOut(): Promise<void> {
 
 export function onAuthChange(callback: (user: User | null) => void) {
   return onAuthStateChanged(auth, callback)
+}
+
+export async function criarUsuarioComoAdmin(email: string, password: string): Promise<string> {
+  if (!isDomainAllowed(email)) {
+    throw new Error(`Cadastro restrito. Apenas e-mails @${ALLOWED_DOMAIN} são permitidos.`)
+  }
+  // Usa instância secundária para não deslogar o admin atual
+  const appSecundario = initializeApp(firebaseConfig, `criar-usuario-${Date.now()}`)
+  const authSecundario = getAuth(appSecundario)
+  try {
+    const result = await createUserWithEmailAndPassword(authSecundario, email, password)
+    return result.user.uid
+  } finally {
+    await deleteApp(appSecundario)
+  }
 }
