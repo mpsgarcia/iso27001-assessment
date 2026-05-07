@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /projetos/{projetoId} {
+      // Listagem e leitura: usuário @spread.com.br dono do projeto
+      allow list: if request.auth != null
+        && request.auth.token.email.matches('.*@spread\\.com\\.br$');
+      allow get, update, delete: if request.auth != null
+        && request.auth.token.email.matches('.*@spread\\.com\\.br$')
+        && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null
+        && request.auth.token.email.matches('.*@spread\\.com\\.br$');
+
+      // Subcoleções (requisitos, controles, estimativas)
+      match /{subcollection}/{itemId} {
+        allow read, write: if request.auth != null
+          && request.auth.token.email.matches('.*@spread\\.com\\.br$');
+      }
+    }
+  }
+}

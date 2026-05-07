@@ -1,0 +1,195 @@
+export interface Clausula {
+  id: string
+  codigo: string
+  titulo: string
+  texto: string
+  grupo: string
+}
+
+export const GRUPOS_REQUISITOS = [
+  { id: 'cl4', label: 'Cláusula 4 — Contexto da Organização' },
+  { id: 'cl5', label: 'Cláusula 5 — Liderança' },
+  { id: 'cl6', label: 'Cláusula 6 — Planejamento' },
+  { id: 'cl7', label: 'Cláusula 7 — Apoio' },
+  { id: 'cl8', label: 'Cláusula 8 — Operação' },
+  { id: 'cl9', label: 'Cláusula 9 — Avaliação de Desempenho' },
+  { id: 'cl10', label: 'Cláusula 10 — Melhoria' },
+]
+
+export const REQUISITOS: Clausula[] = [
+  {
+    id: '4.1',
+    codigo: '4.1',
+    titulo: 'Entendendo a organização e seu contexto',
+    grupo: 'cl4',
+    texto: 'A organização deve determinar as questões internas e externas que são relevantes para o seu propósito e que afetam sua capacidade de alcançar os resultados pretendidos do seu sistema de gestão da segurança da informação.\n\nNOTA: A determinação destas questões refere-se ao estabelecimento do contexto interno e externo da organização conforme a ABNT ISO 31000.',
+  },
+  {
+    id: '4.2',
+    codigo: '4.2',
+    titulo: 'Entendendo as necessidades e expectativas das partes interessadas',
+    grupo: 'cl4',
+    texto: 'A organização deve determinar:\na) as partes interessadas que são relevantes para o sistema de gestão da segurança da informação;\nb) os requisitos relevantes dessas partes interessadas;\nc) quais desses requisitos serão endereçados pelo sistema de gestão da segurança da informação.\n\nNOTA: Os requisitos das partes interessadas podem incluir requisitos legais e regulamentares, bem como obrigações contratuais.',
+  },
+  {
+    id: '4.3',
+    codigo: '4.3',
+    titulo: 'Determinando o escopo do SGSI',
+    grupo: 'cl4',
+    texto: 'A organização deve determinar os limites e a aplicabilidade do sistema de gestão da segurança da informação para estabelecer o seu escopo.\nAo determinar este escopo, a organização deve considerar:\na) as questões internas e externas referenciadas em 4.1;\nb) os requisitos referenciados em 4.2;\nc) as interfaces e dependências entre as atividades desempenhadas pela organização e aquelas que são desempenhadas por outras organizações.\nO escopo deve estar disponível como informação documentada.',
+  },
+  {
+    id: '4.4',
+    codigo: '4.4',
+    titulo: 'Sistema de gestão da segurança da informação',
+    grupo: 'cl4',
+    texto: 'A organização deve estabelecer, implementar, manter e melhorar continuamente um sistema de gestão da segurança da informação, incluindo os processos necessários e suas interações, de acordo com os requisitos deste documento.',
+  },
+  {
+    id: '5.1',
+    codigo: '5.1',
+    titulo: 'Liderança e comprometimento',
+    grupo: 'cl5',
+    texto: 'A Alta Direção deve demonstrar sua liderança e comprometimento em relação ao sistema de gestão da segurança da informação pelos seguintes meios:\na) assegurando que a política de segurança da informação e os objetivos de segurança da informação estejam estabelecidos;\nb) assegurando a integração dos requisitos do SGSI nos processos da organização;\nc) assegurando que os recursos necessários para o SGSI estejam disponíveis;\nd) comunicando a importância de uma gestão eficaz da segurança da informação;\ne) assegurando que o SGSI alcance seus resultados pretendidos;\nf) orientando e apoiando pessoas a contribuir para a eficácia do SGSI;\ng) promovendo a melhoria contínua;\nh) apoiando outros papéis relevantes da gestão.',
+  },
+  {
+    id: '5.2',
+    codigo: '5.2',
+    titulo: 'Política',
+    grupo: 'cl5',
+    texto: 'A Alta Direção deve estabelecer uma política de segurança da informação que:\na) seja apropriada ao propósito da organização;\nb) inclua os objetivos de segurança da informação ou forneça a estrutura para estabelecê-los;\nc) inclua o comprometimento de satisfazer os requisitos aplicáveis;\nd) inclua o comprometimento com a melhoria contínua do SGSI.\nA política deve:\ne) estar disponível como informação documentada;\nf) ser comunicada dentro da organização;\ng) estar disponível para as partes interessadas, conforme apropriado.',
+  },
+  {
+    id: '5.3',
+    codigo: '5.3',
+    titulo: 'Papéis, responsabilidades e autoridades organizacionais',
+    grupo: 'cl5',
+    texto: 'A Alta Direção deve assegurar que as responsabilidades e autoridades dos papéis relevantes para a segurança da informação sejam atribuídos e comunicados dentro da organização.\nA Alta Direção deve atribuir a responsabilidade e autoridade para:\na) assegurar que o SGSI esteja em conformidade com os requisitos deste documento;\nb) relatar sobre o desempenho do SGSI para a Alta Direção.',
+  },
+  {
+    id: '6.1.1',
+    codigo: '6.1.1',
+    titulo: 'Geral — ações para abordar riscos e oportunidades',
+    grupo: 'cl6',
+    texto: 'Ao planejar o SGSI, a organização deve considerar as questões referenciadas em 4.1 e os requisitos de 4.2, e determinar os riscos e oportunidades para:\na) assegurar que o SGSI possa alcançar seus resultados pretendidos;\nb) prevenir ou reduzir os efeitos indesejados;\nc) alcançar a melhoria contínua.\nA organização deve planejar:\nd) as ações para abordar estes riscos e oportunidades;\ne) como integrar e implementar as ações no SGSI e avaliar a eficácia destas ações.',
+  },
+  {
+    id: '6.1.2',
+    codigo: '6.1.2',
+    titulo: 'Avaliação de riscos de segurança da informação',
+    grupo: 'cl6',
+    texto: 'A organização deve estabelecer e aplicar um processo de avaliação de riscos que:\na) estabeleça e mantenha critérios de riscos, incluindo critérios de aceitação;\nb) assegure que avaliações repetidas produzam resultados comparáveis;\nc) identifique os riscos associados com a perda de confidencialidade, integridade e disponibilidade;\nd) analise as consequências potenciais e probabilidade;\ne) avalie e priorize os riscos para tratamento.\nA organização deve reter informação documentada sobre o processo.',
+  },
+  {
+    id: '6.1.3',
+    codigo: '6.1.3',
+    titulo: 'Tratamento de riscos da segurança da informação',
+    grupo: 'cl6',
+    texto: 'A organização deve estabelecer e aplicar um processo de tratamento de riscos para:\na) selecionar as opções de tratamento dos riscos;\nb) determinar todos os controles necessários;\nc) comparar com os controles do Anexo A;\nd) elaborar uma Declaração de Aplicabilidade (SoA);\ne) preparar um plano de tratamento de riscos;\nf) obter a aprovação dos proprietários dos riscos.\nA organização deve reter informação documentada relativa ao processo.',
+  },
+  {
+    id: '6.2',
+    codigo: '6.2',
+    titulo: 'Objetivos da segurança da informação e planejamento para alcançá-los',
+    grupo: 'cl6',
+    texto: 'A organização deve estabelecer os objetivos da segurança da informação para as funções e níveis relevantes.\nOs objetivos devem:\na) ser consistentes com a política;\nb) ser mensuráveis;\nc) levar em conta os requisitos e resultados da avaliação e tratamento de riscos;\nd) ser monitorados, comunicados e atualizados;\ne) estar disponíveis como informação documentada.',
+  },
+  {
+    id: '6.3',
+    codigo: '6.3',
+    titulo: 'Planejamento de mudanças',
+    grupo: 'cl6',
+    texto: 'Quando a organização determina necessidade para mudanças do SGSI, estas mudanças devem ser conduzidas de uma forma planejada.',
+  },
+  {
+    id: '7.1',
+    codigo: '7.1',
+    titulo: 'Recursos',
+    grupo: 'cl7',
+    texto: 'A organização deve determinar e prover os recursos necessários para estabelecer, implementar, manter e melhorar continuamente o sistema de gestão da segurança da informação.',
+  },
+  {
+    id: '7.2',
+    codigo: '7.2',
+    titulo: 'Competência',
+    grupo: 'cl7',
+    texto: 'A organização deve:\na) determinar a competência necessária das pessoas que realizam trabalho que afete o desempenho da segurança da informação;\nb) assegurar que essas pessoas sejam competentes, com base em educação, treinamento ou experiência;\nc) tomar ações para adquirir a competência necessária;\nd) reter informação documentada como evidência da competência.',
+  },
+  {
+    id: '7.3',
+    codigo: '7.3',
+    titulo: 'Conscientização',
+    grupo: 'cl7',
+    texto: 'Pessoas que realizam trabalho sob o controle da organização devem estar cientes:\na) da política da segurança da informação;\nb) da sua contribuição para a eficácia do SGSI;\nc) das implicações da não conformidade com os requisitos do SGSI.',
+  },
+  {
+    id: '7.4',
+    codigo: '7.4',
+    titulo: 'Comunicação',
+    grupo: 'cl7',
+    texto: 'A organização deve determinar a necessidade de comunicações internas e externas relevantes para o SGSI, incluindo:\na) o que comunicar;\nb) quando comunicar;\nc) com quem comunicar;\nd) como se comunicar.',
+  },
+  {
+    id: '7.5',
+    codigo: '7.5',
+    titulo: 'Informação documentada',
+    grupo: 'cl7',
+    texto: 'O SGSI da organização deve incluir:\na) informação documentada requerida por este documento;\nb) informação documentada determinada como necessária para a eficácia do sistema.\nAo criar e atualizar, a organização deve assegurar identificação, formato e análise crítica. A informação documentada deve ser controlada para assegurar disponibilidade, proteção adequada e controle de mudanças.',
+  },
+  {
+    id: '8.1',
+    codigo: '8.1',
+    titulo: 'Planejamento e controle operacionais',
+    grupo: 'cl8',
+    texto: 'A organização deve planejar, implementar e controlar os processos necessários para atender aos requisitos e implementar as ações determinadas na seção 6, estabelecendo critérios e implementando controles. A informação documentada deve ser disponibilizada. A organização deve controlar as mudanças planejadas e assegurar que os processos providos externamente sejam controlados.',
+  },
+  {
+    id: '8.2',
+    codigo: '8.2',
+    titulo: 'Avaliação de riscos da segurança da informação',
+    grupo: 'cl8',
+    texto: 'A organização deve realizar avaliações de riscos a intervalos planejados, ou quando mudanças significativas ocorrerem, levando em conta os critérios estabelecidos em 6.1.2.\nA organização deve reter informação documentada dos resultados.',
+  },
+  {
+    id: '8.3',
+    codigo: '8.3',
+    titulo: 'Tratamento de riscos da segurança da informação',
+    grupo: 'cl8',
+    texto: 'A organização deve implementar o plano de tratamento de riscos e reter informação documentada dos resultados do tratamento de riscos da segurança da informação.',
+  },
+  {
+    id: '9.1',
+    codigo: '9.1',
+    titulo: 'Monitoramento, medição, análise e avaliação',
+    grupo: 'cl9',
+    texto: 'A organização deve determinar:\na) o que precisa ser monitorado e medido;\nb) os métodos para monitoramento, medição, análise e avaliação;\nc) quando o monitoramento e a medição devem ser realizados;\nd) quem deve monitorar e medir;\ne) quando os resultados devem ser analisados e avaliados;\nf) quem deve analisar e avaliar.\nInformação documentada deve ser disponibilizada como evidência dos resultados.',
+  },
+  {
+    id: '9.2',
+    codigo: '9.2',
+    titulo: 'Auditoria interna',
+    grupo: 'cl9',
+    texto: 'A organização deve conduzir auditorias internas a intervalos planejados para verificar se o SGSI está em conformidade com os requisitos e efetivamente implementado. A organização deve planejar, estabelecer, implementar e manter programa(s) de auditoria, definir critérios, selecionar auditores imparciais e assegurar que os resultados sejam relatados à gestão.',
+  },
+  {
+    id: '9.3',
+    codigo: '9.3',
+    titulo: 'Análise crítica pela Direção',
+    grupo: 'cl9',
+    texto: 'A Alta Direção deve analisar criticamente o SGSI em intervalos planejados para assegurar adequação, pertinência e eficácia. A análise deve incluir: situação de ações anteriores, mudanças internas/externas, feedback de desempenho, resultados de auditorias, avaliação de riscos, e oportunidades de melhoria contínua.',
+  },
+  {
+    id: '10.1',
+    codigo: '10.1',
+    titulo: 'Melhoria contínua',
+    grupo: 'cl10',
+    texto: 'A organização deve melhorar continuamente a pertinência, a adequação e a eficácia do sistema de gestão da segurança da informação.',
+  },
+  {
+    id: '10.2',
+    codigo: '10.2',
+    titulo: 'Não conformidade e ação corretiva',
+    grupo: 'cl10',
+    texto: 'Quando uma não conformidade ocorre, a organização deve:\na) reagir à não conformidade e tomar ações para controlá-la;\nb) avaliar a necessidade de ações para eliminar as causas;\nc) implementar quaisquer ações necessárias;\nd) analisar criticamente a eficácia das ações corretivas;\ne) realizar mudanças no SGSI, quando necessário.\nInformação documentada deve estar disponível como evidência.',
+  },
+]
