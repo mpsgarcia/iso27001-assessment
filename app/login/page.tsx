@@ -2,20 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { signIn, signUp } from '@/lib/auth'
+import { signIn } from '@/lib/auth'
 import { useAuth } from '@/contexts/AuthContext'
 import { Loader2 } from 'lucide-react'
 
-type Tab = 'login' | 'cadastro'
-
 export default function LoginPage() {
-  const [tab, setTab] = useState<Tab>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
@@ -24,49 +19,17 @@ export default function LoginPage() {
     if (!authLoading && user) router.replace('/projetos')
   }, [user, authLoading, router])
 
-  function resetForm() {
-    setEmail('')
-    setPassword('')
-    setConfirmPassword('')
-    setError('')
-    setSuccess('')
-  }
-
-  function switchTab(t: Tab) {
-    setTab(t)
-    resetForm()
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
-    setSuccess('')
-
-    if (tab === 'cadastro' && password !== confirmPassword) {
-      setError('As senhas não coincidem.')
-      return
-    }
-    if (tab === 'cadastro' && password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres.')
-      return
-    }
-
     setLoading(true)
     try {
-      if (tab === 'login') {
-        await signIn(email, password)
-        router.replace('/projetos')
-      } else {
-        await signUp(email, password)
-        setSuccess('Conta criada com sucesso! Redirecionando...')
-        setTimeout(() => router.replace('/projetos'), 1500)
-      }
+      await signIn(email, password)
+      router.replace('/projetos')
     } catch (err: unknown) {
       if (err instanceof Error) {
         if (err.message.includes('restrito')) setError(err.message)
-        else if (err.message.includes('email-already-in-use')) setError('Este e-mail já está cadastrado.')
-        else if (err.message.includes('wrong-password') || err.message.includes('invalid-credential')) setError('E-mail ou senha incorretos.')
-        else setError(tab === 'login' ? 'E-mail ou senha incorretos.' : 'Erro ao criar conta. Tente novamente.')
+        else setError('E-mail ou senha incorretos.')
       }
     } finally {
       setLoading(false)
@@ -106,9 +69,9 @@ export default function LoginPage() {
 
         <div className="space-y-6">
           {[
-            { icon: 'verified_user',  title: 'Gap Analysis Completo',    desc: '26 requisitos + 93 controles avaliados em tempo real' },
-            { icon: 'dashboard',      title: 'Dashboard Executivo',       desc: 'Conformidade, progresso e plano de ação em um painel' },
-            { icon: 'picture_as_pdf', title: 'Relatórios Automáticos',   desc: 'Exporte PDF, Excel e SoA com um clique' },
+            { icon: 'verified_user',  title: 'Gap Analysis Completo',   desc: '26 requisitos + 93 controles avaliados em tempo real' },
+            { icon: 'dashboard',      title: 'Dashboard Executivo',      desc: 'Conformidade, progresso e plano de ação em um painel' },
+            { icon: 'picture_as_pdf', title: 'Relatórios Automáticos',  desc: 'Exporte PDF, Excel e SoA com um clique' },
           ].map((item) => (
             <div key={item.icon} className="flex items-start gap-4">
               <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
@@ -139,37 +102,13 @@ export default function LoginPage() {
             <h1 className="font-title text-[22px] font-bold" style={{ color: '#2D2D2D' }}>GRC Shield</h1>
           </div>
 
-          {/* Tabs */}
-          <div
-            className="flex rounded-xl p-1 mb-8"
-            style={{ background: 'rgba(45,45,45,0.07)' }}
-          >
-            {(['login', 'cadastro'] as Tab[]).map((t) => (
-              <button
-                key={t}
-                onClick={() => switchTab(t)}
-                className="flex-1 py-2.5 rounded-lg font-title text-[14px] font-semibold transition-all"
-                style={{
-                  background: tab === t ? '#FFFFFF' : 'transparent',
-                  color: tab === t ? '#FF7400' : '#7F7F7F',
-                  boxShadow: tab === t ? '0 2px 8px rgba(45,45,45,0.10)' : 'none',
-                  transition: 'background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease',
-                }}
-              >
-                {t === 'login' ? 'Entrar' : 'Criar Conta'}
-              </button>
-            ))}
-          </div>
-
           {/* Heading */}
           <div className="mb-7">
             <h2 className="font-title text-[26px] font-bold" style={{ color: '#2D2D2D' }}>
-              {tab === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
+              Bem-vindo de volta
             </h2>
             <p className="font-body text-[14px] mt-1" style={{ color: '#7F7F7F' }}>
-              {tab === 'login'
-                ? 'Faça login com seu e-mail corporativo para continuar.'
-                : 'Cadastre-se com seu e-mail @spread.com.br.'}
+              Faça login com seu e-mail corporativo para continuar.
             </p>
           </div>
 
@@ -181,13 +120,8 @@ export default function LoginPage() {
                 E-mail corporativo
               </label>
               <div
-                className="flex items-center gap-3 rounded-xl px-4 transition-all"
-                style={{
-                  border: '1px solid rgba(45,45,45,0.20)',
-                  background: '#FFFFFF',
-                  minHeight: 50,
-                }}
-                onFocus={() => {}} // handled by CSS below
+                className="flex items-center gap-3 rounded-xl px-4"
+                style={{ border: '1px solid rgba(45,45,45,0.20)', background: '#FFFFFF', minHeight: 50 }}
               >
                 <span className="material-symbols-outlined text-[20px] flex-shrink-0" style={{ color: '#7F7F7F' }}>mail</span>
                 <input
@@ -208,7 +142,7 @@ export default function LoginPage() {
                 Senha
               </label>
               <div
-                className="flex items-center gap-3 rounded-xl px-4 transition-all"
+                className="flex items-center gap-3 rounded-xl px-4"
                 style={{ border: '1px solid rgba(45,45,45,0.20)', background: '#FFFFFF', minHeight: 50 }}
               >
                 <span className="material-symbols-outlined text-[20px] flex-shrink-0" style={{ color: '#7F7F7F' }}>lock</span>
@@ -221,41 +155,13 @@ export default function LoginPage() {
                   className="flex-1 border-none outline-none bg-transparent font-body text-[15px]"
                   style={{ color: '#2D2D2D' }}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((p) => !p)}
-                  tabIndex={-1}
-                >
+                <button type="button" onClick={() => setShowPassword((p) => !p)} tabIndex={-1}>
                   <span className="material-symbols-outlined text-[18px]" style={{ color: '#9A9A9A' }}>
                     {showPassword ? 'visibility_off' : 'visibility'}
                   </span>
                 </button>
               </div>
             </div>
-
-            {/* Confirmar senha — só no cadastro */}
-            {tab === 'cadastro' && (
-              <div style={{ animation: 'slideDown 0.2s ease both' }}>
-                <label className="font-title text-[12px] font-semibold block mb-1.5" style={{ color: '#5F5F5F' }}>
-                  Confirmar senha
-                </label>
-                <div
-                  className="flex items-center gap-3 rounded-xl px-4 transition-all"
-                  style={{ border: '1px solid rgba(45,45,45,0.20)', background: '#FFFFFF', minHeight: 50 }}
-                >
-                  <span className="material-symbols-outlined text-[20px] flex-shrink-0" style={{ color: '#7F7F7F' }}>lock_reset</span>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    className="flex-1 border-none outline-none bg-transparent font-body text-[15px]"
-                    style={{ color: '#2D2D2D' }}
-                  />
-                </div>
-              </div>
-            )}
 
             {/* Erro */}
             {error && (
@@ -265,17 +171,6 @@ export default function LoginPage() {
               >
                 <span className="material-symbols-outlined text-[18px]">error</span>
                 {error}
-              </div>
-            )}
-
-            {/* Sucesso */}
-            {success && (
-              <div
-                className="flex items-center gap-2 rounded-xl px-4 py-3 font-body text-[13px]"
-                style={{ background: 'rgba(0,150,104,0.08)', border: '1px solid rgba(0,150,104,0.20)', color: '#009668' }}
-              >
-                <span className="material-symbols-outlined text-[18px]">check_circle</span>
-                {success}
               </div>
             )}
 
@@ -291,13 +186,11 @@ export default function LoginPage() {
               }}
             >
               {loading ? (
-                <><Loader2 className="h-5 w-5 animate-spin" />{tab === 'login' ? 'Entrando...' : 'Criando conta...'}</>
+                <><Loader2 className="h-5 w-5 animate-spin" />Entrando...</>
               ) : (
                 <>
-                  <span className="material-symbols-outlined text-[20px]">
-                    {tab === 'login' ? 'login' : 'person_add'}
-                  </span>
-                  {tab === 'login' ? 'Entrar na plataforma' : 'Criar minha conta'}
+                  <span className="material-symbols-outlined text-[20px]">login</span>
+                  Entrar na plataforma
                 </>
               )}
             </button>

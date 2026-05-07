@@ -63,3 +63,12 @@ export interface AvaliacaoRequisito extends AvaliacaoItem {
 export interface AvaliacaoControle extends AvaliacaoItem {
   controleId: string
 }
+
+export type RoleUsuario = 'admin' | 'user'
+
+export interface Usuario {
+  uid: string
+  email: string
+  role: RoleUsuario
+  criadoEm: string
+}

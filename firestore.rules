@@ -2,21 +2,32 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    match /projetos/{projetoId} {
-      // Listagem e leitura: usuário @spread.com.br dono do projeto
-      allow list: if request.auth != null
+    function isAuthenticated() {
+      return request.auth != null
         && request.auth.token.email.matches('.*@spread\\.com\\.br$');
-      allow get, update, delete: if request.auth != null
-        && request.auth.token.email.matches('.*@spread\\.com\\.br$')
-        && resource.data.uid == request.auth.uid;
-      allow create: if request.auth != null
-        && request.auth.token.email.matches('.*@spread\\.com\\.br$');
+    }
 
-      // Subcoleções (requisitos, controles, estimativas)
+    function isAdmin() {
+      return isAuthenticated()
+        && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /projetos/{projetoId} {
+      allow list: if isAuthenticated();
+      allow get, update, delete: if isAuthenticated()
+        && resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated();
+
       match /{subcollection}/{itemId} {
-        allow read, write: if request.auth != null
-          && request.auth.token.email.matches('.*@spread\\.com\\.br$');
+        allow read, write: if isAuthenticated();
       }
+    }
+
+    match /usuarios/{uid} {
+      // Qualquer consultor pode ler (para verificar roles)
+      allow read: if isAuthenticated();
+      // Apenas admin pode criar e atualizar usuários
+      allow create, update: if isAdmin();
     }
   }
 }
