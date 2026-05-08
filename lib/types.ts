@@ -69,6 +69,7 @@ export type RoleUsuario = 'admin' | 'user'
 export interface Usuario {
   uid: string
   email: string
+  nome: string
   role: RoleUsuario
   criadoEm: string
 }
