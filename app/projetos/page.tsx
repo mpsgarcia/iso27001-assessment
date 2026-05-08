@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { listarProjetos, criarProjeto, excluirProjeto } from '@/lib/firestore'
-import { Projeto } from '@/lib/types'
+import { listarProjetos, criarProjeto, excluirProjeto, carregarAvaliacoes } from '@/lib/firestore'
+import { Projeto, AvaliacaoItem } from '@/lib/types'
+import { REQUISITOS } from '@/lib/data/requisitos'
+import { CONTROLES } from '@/lib/data/controles'
 import { Loader2 } from 'lucide-react'
 
 export default function ProjetosPage() {
@@ -12,6 +14,7 @@ export default function ProjetosPage() {
   const router = useRouter()
   const [projetos, setProjetos] = useState<Projeto[]>([])
   const [loading, setLoading] = useState(true)
+  const [conformidadeGlobal, setConformidadeGlobal] = useState<number | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [criando, setCriando] = useState(false)
   const [form, setForm] = useState({
@@ -32,11 +35,39 @@ export default function ProjetosPage() {
     try {
       const lista = await listarProjetos(user!.uid)
       setProjetos(lista)
+      if (lista.length > 0) {
+        calcularConformidadeGlobal(lista)
+      }
     } catch (e) {
       console.error('Erro ao carregar projetos:', e)
     } finally {
       setLoading(false)
     }
+  }
+
+  async function calcularConformidadeGlobal(lista: Projeto[]) {
+    const todasAvaliacoes = await Promise.all(
+      lista.flatMap((p) => [
+        carregarAvaliacoes(p.id, 'requisitos'),
+        carregarAvaliacoes(p.id, 'controles'),
+      ])
+    )
+    const allIds = [
+      ...REQUISITOS.map((r) => r.id),
+      ...CONTROLES.map((c) => c.id),
+    ]
+    let conformes = 0
+    let elegiveis = 0
+    todasAvaliacoes.forEach((aval: Record<string, AvaliacaoItem>) => {
+      allIds.forEach((id) => {
+        const av = aval[id]
+        if (!av || av.status === 'nao_preenchido') return
+        if (av.status === 'nao_aplicavel') return
+        elegiveis++
+        if (av.status === 'atende_totalmente') conformes++
+      })
+    })
+    setConformidadeGlobal(elegiveis > 0 ? Math.round((conformes / elegiveis) * 100) : 0)
   }
 
   async function handleCriar(e: React.FormEvent) {
@@ -141,12 +172,12 @@ export default function ProjetosPage() {
                       cx="48" cy="48" r="40" fill="transparent"
                       stroke="#a855f7" strokeWidth="8"
                       strokeDasharray="251.2"
-                      strokeDashoffset={251.2 * (1 - projetos.length / Math.max(projetos.length, 1) * 0.75)}
+                      strokeDashoffset={251.2 * (1 - (conformidadeGlobal ?? 0) / 100)}
                       strokeLinecap="round"
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center font-manrope text-headline-lg text-primary font-bold">
-                    {projetos.length > 0 ? '75%' : '—'}
+                    {projetos.length === 0 ? '—' : conformidadeGlobal === null ? '...' : `${conformidadeGlobal}%`}
                   </div>
                 </div>
                 <div>
