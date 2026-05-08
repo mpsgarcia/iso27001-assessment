@@ -111,8 +111,8 @@ export async function atualizarRoleUsuario(uid: string, role: RoleUsuario): Prom
   await updateDoc(doc(db, 'usuarios', uid), { role })
 }
 
-export async function registrarNovoUsuario(uid: string, email: string): Promise<void> {
-  await setDoc(doc(db, 'usuarios', uid), { uid, email, role: 'user', criadoEm: serverTimestamp() })
+export async function registrarNovoUsuario(uid: string, email: string, nome: string): Promise<void> {
+  await setDoc(doc(db, 'usuarios', uid), { uid, email, nome, role: 'user', criadoEm: serverTimestamp() })
 }
 
 // ── HELPERS DASHBOARD ─────────────────────────────────────

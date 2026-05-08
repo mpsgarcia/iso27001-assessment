@@ -18,7 +18,7 @@ export default function ConfiguracoesPage() {
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState('')
 
-  const [form, setForm] = useState({ email: '', role: 'user' as RoleUsuario })
+  const [form, setForm] = useState({ nome: '', email: '', role: 'user' as RoleUsuario })
 
   useEffect(() => {
     if (!authLoading && !user) { router.replace('/login'); return }
@@ -43,12 +43,12 @@ export default function ConfiguracoesPage() {
     setCriando(true)
     try {
       const uid = await criarUsuarioComoAdmin(form.email)
-      await registrarNovoUsuario(uid, form.email)
+      await registrarNovoUsuario(uid, form.email, form.nome)
       if (form.role === 'admin') {
         await atualizarRoleUsuario(uid, 'admin')
       }
       setSucesso(`Conta criada! Um e-mail de definição de senha foi enviado para ${form.email}.`)
-      setForm({ email: '', role: 'user' })
+      setForm({ nome: '', email: '', role: 'user' })
       carregarUsuarios()
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -95,6 +95,20 @@ export default function ConfiguracoesPage() {
             </div>
 
             <form onSubmit={handleCriar} className="space-y-md">
+              <div className="form-group">
+                <label className="form-label">Nome completo <span className="required">*</span></label>
+                <div className="input-with-icon">
+                  <span className="material-symbols-outlined">person</span>
+                  <input
+                    type="text"
+                    required
+                    value={form.nome}
+                    onChange={(e) => setForm({ ...form, nome: e.target.value })}
+                    placeholder="Nome do consultor"
+                  />
+                </div>
+              </div>
+
               <div className="form-group">
                 <label className="form-label">E-mail corporativo <span className="required">*</span></label>
                 <div className="input-with-icon">
@@ -190,17 +204,17 @@ export default function ConfiguracoesPage() {
                           className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
                           style={{ background: u.role === 'admin' ? '#FF7400' : '#4B1196' }}
                         >
-                          {u.email[0].toUpperCase()}
+                          {(u.nome || u.email)[0].toUpperCase()}
                         </div>
                         <div>
                           <p className="font-body text-[14px] text-[#2D2D2D] font-semibold">
-                            {u.email}
+                            {u.nome || u.email}
                             {isCurrentUser && (
                               <span className="ml-xs font-body text-[11px] text-[#7F7F7F]">(você)</span>
                             )}
                           </p>
                           <p className="font-body text-[12px] text-[#7F7F7F]">
-                            {u.role === 'admin' ? 'Administrador' : 'Consultor'}
+                            {u.email} · {u.role === 'admin' ? 'Administrador' : 'Consultor'}
                           </p>
                         </div>
                       </div>
