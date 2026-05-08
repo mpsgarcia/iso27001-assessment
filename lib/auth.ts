@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   User,
   getAuth,
 } from 'firebase/auth'
@@ -39,15 +40,18 @@ export function onAuthChange(callback: (user: User | null) => void) {
   return onAuthStateChanged(auth, callback)
 }
 
-export async function criarUsuarioComoAdmin(email: string, password: string): Promise<string> {
+export async function criarUsuarioComoAdmin(email: string): Promise<string> {
   if (!isDomainAllowed(email)) {
     throw new Error(`Cadastro restrito. Apenas e-mails @${ALLOWED_DOMAIN} são permitidos.`)
   }
-  // Usa instância secundária para não deslogar o admin atual
+  // Senha temporária aleatória — o usuário a troca pelo link enviado por e-mail
+  const senhaTemp = `Tmp_${Math.random().toString(36).slice(-10)}${Date.now()}`
   const appSecundario = initializeApp(firebaseConfig, `criar-usuario-${Date.now()}`)
   const authSecundario = getAuth(appSecundario)
   try {
-    const result = await createUserWithEmailAndPassword(authSecundario, email, password)
+    const result = await createUserWithEmailAndPassword(authSecundario, email, senhaTemp)
+    // Envia e-mail de redefinição de senha para forçar troca no primeiro acesso
+    await sendPasswordResetEmail(auth, email)
     return result.user.uid
   } finally {
     await deleteApp(appSecundario)
