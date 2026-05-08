@@ -15,8 +15,12 @@ export default function ProjetosPage() {
   const [projetos, setProjetos] = useState<Projeto[]>([])
   const [loading, setLoading] = useState(true)
   const [conformidadeGlobal, setConformidadeGlobal] = useState<number | null>(null)
+  const [criticos, setCriticos] = useState(0)
+  const [busca, setBusca] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [criando, setCriando] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [excluindo, setExcluindo] = useState(false)
   const [form, setForm] = useState({
     organizacao: '',
     consultor: '',
@@ -58,6 +62,7 @@ export default function ProjetosPage() {
     ]
     let conformes = 0
     let elegiveis = 0
+    let totalCriticos = 0
     todasAvaliacoes.forEach((aval: Record<string, AvaliacaoItem>) => {
       allIds.forEach((id) => {
         const av = aval[id]
@@ -65,13 +70,19 @@ export default function ProjetosPage() {
         if (av.status === 'nao_aplicavel') return
         elegiveis++
         if (av.status === 'atende_totalmente') conformes++
+        if (av.status === 'nao_atende' && av.prioridade === 'critica') totalCriticos++
       })
     })
     setConformidadeGlobal(elegiveis > 0 ? Math.round((conformes / elegiveis) * 100) : 0)
+    setCriticos(totalCriticos)
   }
 
   async function handleCriar(e: React.FormEvent) {
     e.preventDefault()
+    if (form.dataEntrega < form.dataInicio) {
+      alert('A data de entrega deve ser igual ou posterior à data de início.')
+      return
+    }
     setCriando(true)
     try {
       const id = await criarProjeto(user!.uid, form)
@@ -81,11 +92,25 @@ export default function ProjetosPage() {
     }
   }
 
-  async function handleExcluir(id: string) {
-    if (!confirm('Excluir este projeto?')) return
-    await excluirProjeto(id)
-    setProjetos((prev) => prev.filter((p) => p.id !== id))
+  async function confirmarExcluir() {
+    if (!confirmDelete) return
+    setExcluindo(true)
+    try {
+      await excluirProjeto(confirmDelete)
+      setProjetos((prev) => prev.filter((p) => p.id !== confirmDelete))
+    } finally {
+      setExcluindo(false)
+      setConfirmDelete(null)
+    }
   }
+
+  const projetosFiltrados = busca.trim()
+    ? projetos.filter(
+        (p) =>
+          p.organizacao.toLowerCase().includes(busca.toLowerCase()) ||
+          p.consultor.toLowerCase().includes(busca.toLowerCase())
+      )
+    : projetos
 
   const classifColor: Record<string, string> = {
     Confidencial: 'bg-error-container text-on-error-container',
@@ -103,6 +128,8 @@ export default function ProjetosPage() {
             className="input !min-h-[40px] !py-2 pl-10 pr-4 w-64 !text-[14px]"
             placeholder="Buscar projetos..."
             type="text"
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
           />
         </div>
         <nav className="hidden md:flex h-full">
@@ -193,7 +220,7 @@ export default function ProjetosPage() {
                   <span className="text-label-caps font-inter text-on-surface-variant uppercase">Ativos</span>
                 </div>
                 <div className="text-center">
-                  <span className="block font-manrope text-display-xl text-error">00</span>
+                  <span className="block font-manrope text-display-xl text-error">{String(criticos).padStart(2, '0')}</span>
                   <span className="text-label-caps font-inter text-on-surface-variant uppercase">Críticos</span>
                 </div>
               </div>
@@ -208,7 +235,12 @@ export default function ProjetosPage() {
                   </div>
                   <p className="text-[13px] text-[#7F7F7F] leading-relaxed">Exporte sua análise de lacunas ISO 27001 em PDF ou Excel.</p>
                 </div>
-                <button className="self-start text-white font-title font-semibold text-[13px] px-lg py-xs rounded-lg transition-all hover:-translate-y-0.5 mt-md" style={{ background: '#FF7400', boxShadow: '0 6px 20px rgba(255,116,0,0.25)' }}>
+                <button
+                  onClick={() => projetos.length > 0 && router.push(`/projetos/${projetos[0].id}/exportar`)}
+                  disabled={projetos.length === 0}
+                  className="self-start text-white font-title font-semibold text-[13px] px-lg py-xs rounded-lg transition-all hover:-translate-y-0.5 mt-md disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ background: '#FF7400', boxShadow: '0 6px 20px rgba(255,116,0,0.25)' }}
+                >
                   Exportar PDF
                 </button>
               </div>
@@ -254,7 +286,7 @@ export default function ProjetosPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-outline-variant/20">
-                      {projetos.map((projeto) => (
+                      {projetosFiltrados.map((projeto) => (
                         <tr
                           key={projeto.id}
                           className="row-hover-effect cursor-pointer"
@@ -293,7 +325,7 @@ export default function ProjetosPage() {
                           </td>
                           <td className="px-xl py-lg text-right">
                             <button
-                              onClick={(e) => { e.stopPropagation(); handleExcluir(projeto.id) }}
+                              onClick={(e) => { e.stopPropagation(); setConfirmDelete(projeto.id) }}
                               className="material-symbols-outlined text-outline hover:text-error transition-colors"
                             >
                               delete
@@ -306,7 +338,8 @@ export default function ProjetosPage() {
                 </div>
                 <div className="px-xl py-md bg-surface-container-lowest border-t border-outline-variant/30 flex justify-between items-center">
                   <p className="font-inter text-body-sm text-on-surface-variant">
-                    Mostrando {projetos.length} projeto{projetos.length !== 1 ? 's' : ''}
+                    Mostrando {projetosFiltrados.length} de {projetos.length} projeto{projetos.length !== 1 ? 's' : ''}
+                    {busca && <span className="ml-xs text-primary">· "{busca}"</span>}
                   </p>
                 </div>
               </>
@@ -315,7 +348,44 @@ export default function ProjetosPage() {
         </div>
       </main>
 
-      {/* Modal */}
+      {/* Modal de confirmação de exclusão */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="glass-panel border border-outline-variant/50 rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.5)] w-full max-w-sm animate-slide-up">
+            <div className="px-xl py-lg border-b border-outline-variant/30 flex items-center gap-md">
+              <span className="material-symbols-outlined text-error text-[24px]">warning</span>
+              <h2 className="font-manrope text-headline-lg text-on-surface">Excluir projeto?</h2>
+            </div>
+            <div className="px-xl py-lg">
+              <p className="font-inter text-body-base text-on-surface-variant">
+                Esta ação é irreversível. Todas as avaliações, controles e dados do projeto serão permanentemente apagados.
+              </p>
+            </div>
+            <div className="px-xl py-lg border-t border-outline-variant/30 flex gap-sm">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                disabled={excluindo}
+                className="flex-1 px-lg py-sm border border-outline-variant text-on-surface-variant font-inter font-semibold rounded-lg hover:bg-surface-variant/10 transition-all disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmarExcluir}
+                disabled={excluindo}
+                className="flex-1 bg-error text-on-error px-lg py-sm rounded-lg font-manrope text-title-md hover:brightness-110 transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-xs"
+              >
+                {excluindo ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" />Excluindo...</>
+                ) : (
+                  'Sim, excluir'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal novo projeto */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
           <div className="glass-panel border border-outline-variant/50 rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.5)] w-full max-w-[512px] animate-slide-up">

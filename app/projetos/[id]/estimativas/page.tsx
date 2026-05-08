@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { salvarEstimativa, carregarEstimativas } from '@/lib/firestore'
 import { ESTIMATIVAS, FASES, EntregavelEstimativa } from '@/lib/data/estimativas'
@@ -22,7 +22,7 @@ export default function EstimativasPage() {
     ESTIMATIVAS.map((e) => ({ ...e, fatorAjuste: 1.0, dayRate: 1500 }))
   )
   const [loading, setLoading] = useState(true)
-  const [salvandoTimer, setSalvandoTimer] = useState<NodeJS.Timeout | null>(null)
+  const salvandoTimer = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     carregarEstimativas(id).then((est) => {
@@ -65,24 +65,20 @@ export default function EstimativasPage() {
   const totalHoras = linhas.reduce((acc, l) => acc + getHorasEstimadas(l), 0)
   const totalCusto = linhas.reduce((acc, l) => acc + getCusto(l), 0)
 
-  const salvarComDebounce = useCallback(
-    (novasLinhas: LinhaEstimativa[], novaMatuidade: Maturidade) => {
-      if (salvandoTimer) clearTimeout(salvandoTimer)
-      const timer = setTimeout(async () => {
-        await Promise.all([
-          salvarEstimativa(id, '_config', { maturidade: novaMatuidade }),
-          ...novasLinhas.map((l) =>
-            salvarEstimativa(id, l.id, {
-              fatorAjuste: l.fatorAjuste,
-              dayRate: l.dayRate,
-            })
-          ),
-        ])
-      }, 1000)
-      setSalvandoTimer(timer)
-    },
-    [id, salvandoTimer]
-  )
+  function salvarComDebounce(novasLinhas: LinhaEstimativa[], novaMatuidade: Maturidade) {
+    if (salvandoTimer.current) clearTimeout(salvandoTimer.current)
+    salvandoTimer.current = setTimeout(async () => {
+      await Promise.all([
+        salvarEstimativa(id, '_config', { maturidade: novaMatuidade }),
+        ...novasLinhas.map((l) =>
+          salvarEstimativa(id, l.id, {
+            fatorAjuste: l.fatorAjuste,
+            dayRate: l.dayRate,
+          })
+        ),
+      ])
+    }, 1000)
+  }
 
   function atualizarLinha(itemId: string, campo: 'fatorAjuste' | 'dayRate', valor: number) {
     const novas = linhas.map((l) => (l.id === itemId ? { ...l, [campo]: valor } : l))
