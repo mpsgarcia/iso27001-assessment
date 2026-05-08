@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { criarUsuarioComoAdmin } from '@/lib/auth'
 import { listarUsuarios, registrarNovoUsuario, atualizarRoleUsuario } from '@/lib/firestore'
@@ -77,6 +78,17 @@ export default function ConfiguracoesPage() {
 
   return (
     <div className="p-xl max-w-4xl mx-auto">
+
+      {/* Voltar */}
+      <div className="mb-lg">
+        <Link
+          href="/projetos"
+          className="flex items-center gap-xs text-[#7F7F7F] hover:text-[#FF7400] transition-colors font-body text-[14px] w-fit"
+        >
+          <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+          Projetos
+        </Link>
+      </div>
 
       {/* Título */}
       <div className="mb-xl">
