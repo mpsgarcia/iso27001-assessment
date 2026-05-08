@@ -24,8 +24,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthChange(async (u) => {
       setUser(u)
       if (u) {
-        const r = await sincronizarUsuario(u.uid, u.email ?? '')
-        setRole(r)
+        try {
+          const r = await sincronizarUsuario(u.uid, u.email ?? '')
+          setRole(r)
+        } catch {
+          setRole('user')
+        }
       } else {
         setRole(null)
       }
