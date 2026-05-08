@@ -18,7 +18,7 @@ export default function ConfiguracoesPage() {
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState('')
 
-  const [form, setForm] = useState({ email: '', senha: '', confirmarSenha: '', role: 'user' as RoleUsuario })
+  const [form, setForm] = useState({ email: '', role: 'user' as RoleUsuario })
 
   useEffect(() => {
     if (!authLoading && !user) { router.replace('/login'); return }
@@ -40,25 +40,15 @@ export default function ConfiguracoesPage() {
     e.preventDefault()
     setErro('')
     setSucesso('')
-
-    if (form.senha !== form.confirmarSenha) {
-      setErro('As senhas não coincidem.')
-      return
-    }
-    if (form.senha.length < 6) {
-      setErro('A senha deve ter pelo menos 6 caracteres.')
-      return
-    }
-
     setCriando(true)
     try {
-      const uid = await criarUsuarioComoAdmin(form.email, form.senha)
+      const uid = await criarUsuarioComoAdmin(form.email)
       await registrarNovoUsuario(uid, form.email)
       if (form.role === 'admin') {
         await atualizarRoleUsuario(uid, 'admin')
       }
-      setSucesso(`Conta criada com sucesso para ${form.email}.`)
-      setForm({ email: '', senha: '', confirmarSenha: '', role: 'user' })
+      setSucesso(`Conta criada! Um e-mail de definição de senha foi enviado para ${form.email}.`)
+      setForm({ email: '', role: 'user' })
       carregarUsuarios()
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -117,34 +107,9 @@ export default function ConfiguracoesPage() {
                     placeholder="nome@spread.com.br"
                   />
                 </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Senha <span className="required">*</span></label>
-                <div className="input-with-icon">
-                  <span className="material-symbols-outlined">lock</span>
-                  <input
-                    type="password"
-                    required
-                    value={form.senha}
-                    onChange={(e) => setForm({ ...form, senha: e.target.value })}
-                    placeholder="Mínimo 6 caracteres"
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Confirmar senha <span className="required">*</span></label>
-                <div className="input-with-icon">
-                  <span className="material-symbols-outlined">lock_reset</span>
-                  <input
-                    type="password"
-                    required
-                    value={form.confirmarSenha}
-                    onChange={(e) => setForm({ ...form, confirmarSenha: e.target.value })}
-                    placeholder="••••••••"
-                  />
-                </div>
+                <p className="font-body text-[12px] text-[#7F7F7F] mt-xs">
+                  O usuário receberá um e-mail para definir a própria senha.
+                </p>
               </div>
 
               <div className="form-group">
